@@ -1,0 +1,47 @@
+[package]
+name = "diesel-paradedb"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.78"
+description = "Diesel ORM bindings for ParadeDB's pg_search extension — BM25 search, structured queries, scoring, and aggregates."
+documentation = "https://docs.rs/diesel-paradedb"
+repository = "https://github.com/cjrh/diesel-paradedb"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+keywords = ["diesel", "paradedb", "postgres", "bm25", "search"]
+categories = ["database"]
+
+[dependencies]
+# Pinned to `2.2` (the current minor at first release). Diesel has, in
+# practice, broken extension crates on minor bumps before — track each
+# upstream minor explicitly rather than allowing `^2`.
+#
+# `with-deprecated` re-exports the `#[derive(SqlType)]` / `#[derive(QueryId)]`
+# proc-macros at `diesel::SqlType` / `diesel::QueryId`. It is on by
+# default in Diesel; we enable it explicitly here so this crate compiles
+# even when downstream callers disabled their own default features.
+diesel = { version = "~2.2", default-features = false, features = ["postgres_backend", "with-deprecated"] }
+serde_json = "1"
+
+[dev-dependencies]
+# `postgres` feature pulls in the runtime client used for the live-DB
+# integration tests under `tests/`. Library users that only want the
+# typed DSL never need it; their own crate brings the connection type.
+# `serde_json` lets the integration tests deserialise `pdb.agg(...)`
+# results directly into `serde_json::Value`.
+diesel = { version = "~2.2", features = ["postgres", "postgres_backend", "serde_json"] }
+diesel-async = { version = "~0.6", features = ["postgres", "bb8"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+[lib]
+# README is rendered as the crate-level doc via `#![doc = include_str!(...)]`.
+# Disabling doctests on the lib avoids the README's prose-code-blocks
+# being run as standalone doctests against a real DB.
+doctest = false
+
+[package.metadata.docs.rs]
+# Build the docs.rs page against the same feature set users get by
+# default. No extras to enable today; reserved here so future opt-in
+# features (e.g. `pgvector-interop`) get rendered automatically.
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
