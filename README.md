@@ -32,7 +32,7 @@ let rows: Vec<(i32, String, f32, serde_json::Value)> = feedback::table
 ```toml
 [dependencies]
 diesel = { version = "2.2", features = ["postgres"] }
-diesel-paradedb = "0.1"
+diesel-paradedb = "1.0"
 ```
 
 The crate works with both [`diesel`](https://crates.io/crates/diesel) (sync) and [`diesel-async`](https://crates.io/crates/diesel-async). No feature flag is required for async — this crate only adds new expression types, all of which use Diesel's standard `QueryFragment` traits.
@@ -130,9 +130,9 @@ Diesel's typed AST composes via tuples; the trait resolver gets quadratically sl
 
 | `diesel-paradedb` | `diesel` |
 |-------------------|----------|
-| `0.1.x`           | `~2.2`   |
+| `1.0.x`           | `~2.2`   |
 
-A Diesel `2.3` release will trigger `diesel-paradedb` `0.2`; a Diesel `3.0` will trigger `diesel-paradedb` `3.0`. Pin in your `Cargo.toml` accordingly.
+Every Diesel minor bump (e.g. `2.2` → `2.3`) ships as a new `diesel-paradedb` major, since the pin in `Cargo.toml` is `~2.x` and Diesel has broken extension crates on minor bumps before. Pin `diesel-paradedb` in your `Cargo.toml` accordingly.
 
 ## Testing
 
