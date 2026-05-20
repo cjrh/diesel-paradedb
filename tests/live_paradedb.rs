@@ -83,7 +83,7 @@ async fn setup(conn: &mut AsyncPgConnection) {
          USING bm25 (
             id,
             body,
-            (rating::pdb.literal),
+            rating,
             (sentiment::pdb.literal)
          ) WITH (key_field = 'id')",
     ];

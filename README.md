@@ -50,7 +50,7 @@ CREATE INDEX my_idx ON feedback
 | Item | Postgres form | Rust form |
 |------|---------------|-----------|
 | Match-type marker | `pdb.query` | `diesel_paradedb::sql_types::ParadeQuery` |
-| Term match | `text ||| 'query'` | `text.term_match("query")` |
+| Term match | `text \|\|\| 'query'` | `text.term_match("query")` |
 | Structured match | `id @@@ pdb.all()` | `id.parade_match(pdb_all())` |
 | Match-all builder | `pdb.all()` | `pdb_all()` |
 | BM25 score | `pdb.score(id)` | `pdb_score(id)` |
