@@ -136,18 +136,26 @@ Every Diesel minor bump (e.g. `2.2` → `2.3`) ships as a new `diesel-paradedb` 
 
 ## Testing
 
-Unit tests cover the JSON shapes that the `pdb_agg_*` builders construct and run with a plain `cargo test`.
-
-End-to-end tests under `tests/live_paradedb.rs` exercise every operator, function, and aggregate against a real ParadeDB container. They're tagged `#[ignore]` so a plain `cargo test` skips them. To run them locally:
+The repo ships a [`justfile`](https://github.com/casey/just). After cloning, the full suite is one command:
 
 ```bash
-docker run -d --name paradedb -p 5432:5432 \
-    -e POSTGRES_PASSWORD=parade \
-    paradedb/paradedb:latest
-
-TEST_DATABASE_URL=postgres://postgres:parade@localhost:5432/postgres \
-    cargo test --test live_paradedb -- --ignored
+just test
 ```
+
+That runs the unit tests, starts a ParadeDB container, and runs the live integration tests against it.
+
+Unit tests cover the JSON shapes that the `pdb_agg_*` builders construct. End-to-end tests under `tests/live_paradedb.rs` exercise every operator, function, and aggregate against a real ParadeDB container; they're tagged `#[ignore]` so a plain `cargo test` skips them.
+
+Individual recipes (`just --list` for the full set):
+
+```bash
+just test-unit   # JSON-shape checks; no database needed
+just db-up       # start a ParadeDB container, wait until it's ready
+just test-live   # live integration tests against the running server
+just db-down     # stop and remove the container
+```
+
+`test-live` reads `TEST_DATABASE_URL` (default `postgres://postgres:parade@localhost:5432/postgres`); point it at an existing server with `just test-live database_url=...`.
 
 ## Contributing
 
@@ -155,6 +163,14 @@ PRs welcome. The crate's scope is narrow on purpose — only the ParadeDB primit
 - A short doc comment explaining the Postgres semantics and any non-obvious wiring (look at `aggregates.rs::push_jsonb_literal` for the level of detail expected).
 - A unit test for any compile-time-checkable shape (JSON config, SQL rendering via the `QueryFragment` `walk_ast` path).
 - An assertion in `tests/live_paradedb.rs` so drift in operator names or function schemas is caught against the real extension.
+
+## Releasing
+
+Releases are cut with [`cargo release`](https://github.com/crate-ci/cargo-release), which bumps the version, updates `CHANGELOG.md`, tags, and publishes to crates.io in one step:
+
+```bash
+cargo release patch   # or: minor / major
+```
 
 ## License
 
