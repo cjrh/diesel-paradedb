@@ -1,6 +1,6 @@
 [package]
 name = "diesel-paradedb"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 rust-version = "1.78"
 description = "Diesel ORM bindings for ParadeDB's pg_search extension — BM25 search, structured queries, scoring, and aggregates."
