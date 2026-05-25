@@ -12,25 +12,27 @@ keywords = ["diesel", "paradedb", "postgres", "bm25", "search"]
 categories = ["database"]
 
 [dependencies]
-# Pinned to `2.2` (the current minor at first release). Diesel has, in
-# practice, broken extension crates on minor bumps before — track each
-# upstream minor explicitly rather than allowing `^2`.
+# Diesel 2.2 and 2.3 are both supported. Diesel has, in practice, broken
+# extension crates on minor bumps before, so the upper bound is explicit
+# rather than `^2` — each new diesel minor needs to be validated against
+# this crate's tests before the bound is widened.
 #
 # `with-deprecated` re-exports the `#[derive(SqlType)]` / `#[derive(QueryId)]`
 # proc-macros at `diesel::SqlType` / `diesel::QueryId`. It is on by
 # default in Diesel; we enable it explicitly here so this crate compiles
 # even when downstream callers disabled their own default features.
-diesel = { version = "~2.2", default-features = false, features = ["postgres_backend", "with-deprecated"] }
+diesel = { version = ">=2.2, <2.4", default-features = false, features = ["postgres_backend", "with-deprecated"] }
 serde_json = "1"
 
 [dev-dependencies]
-# `postgres` feature pulls in the runtime client used for the live-DB
-# integration tests under `tests/`. Library users that only want the
-# typed DSL never need it; their own crate brings the connection type.
-# `serde_json` lets the integration tests deserialise `pdb.agg(...)`
-# results directly into `serde_json::Value`.
-diesel = { version = "~2.2", features = ["postgres", "postgres_backend", "serde_json"] }
-diesel-async = { version = "~0.6", features = ["postgres", "bb8"] }
+# Tested against the upper-bound diesel minor (2.3); the runtime range
+# above still permits 2.2 downstream. `postgres` feature pulls in the
+# runtime client used for the live-DB integration tests under `tests/`.
+# Library users that only want the typed DSL never need it; their own
+# crate brings the connection type. `serde_json` lets the integration
+# tests deserialise `pdb.agg(...)` results directly into `serde_json::Value`.
+diesel = { version = "~2.3", features = ["postgres", "postgres_backend", "serde_json"] }
+diesel-async = { version = "~0.9", features = ["postgres", "bb8"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [lib]
