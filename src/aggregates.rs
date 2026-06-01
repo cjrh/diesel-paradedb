@@ -69,8 +69,8 @@ pub struct PdbAggOver {
 
 impl PdbAgg {
     fn new(config: JsonValue) -> Self {
-        let config_sql = serde_json::to_string(&config)
-            .expect("pdb_agg config: JsonValue always serialises");
+        let config_sql =
+            serde_json::to_string(&config).expect("pdb_agg config: JsonValue always serialises");
         Self { config_sql }
     }
 
