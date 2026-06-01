@@ -1,8 +1,10 @@
 //! Diesel ORM bindings for [ParadeDB](https://www.paradedb.com)'s `pg_search`
 //! extension.
 //!
-//! ParadeDB adds a Postgres type (`pdb.query`), two custom operators (`|||`
-//! and `@@@`), and a family of query-builder functions in the `pdb` schema.
+//! ParadeDB adds Postgres query types (`pdb.query` and, for a few legacy
+//! builders, `paradedb.searchqueryinput`), custom search operators (`|||`,
+//! `@@@`, and `###`), and a family of query-builder functions in the `pdb`
+//! schema.
 //! Mainline Diesel does not know about any of these, so queries that use
 //! them must otherwise be written with `sql_query`. This crate bridges that
 //! gap: once imported, BM25 queries, match-all filters, relevance scoring,
@@ -12,13 +14,18 @@
 //! ## What is modelled
 //!
 //! - [`sql_types::ParadeQuery`] — Diesel SQL-type marker that mirrors
-//!   ParadeDB's `pdb.query` type. Every `pdb::*` builder function returns
-//!   this type, and the `@@@` operator expects it on the right.
-//! - Infix operators [`TermMatch`] (`|||`) and [`ParadeMatch`] (`@@@`),
-//!   exposed via the fluent extension traits [`TermMatchDsl`] /
-//!   [`ParadeMatchDsl`] (`.term_match(...)` and `.parade_match(...)`).
+//!   ParadeDB's `pdb.query` type. Most modern `pdb::*` builders return this
+//!   type, and the `@@@` operator accepts it on the right.
+//! - [`sql_types::SearchQueryInput`] — marker for legacy builders that still
+//!   return `paradedb.searchqueryinput`, such as `pdb.more_like_this(...)`.
+//! - Infix operators [`TermMatch`] (`|||`), [`ParadeMatch`] (`@@@`), and
+//!   [`PhraseMatch`] (`###`), exposed via fluent extension traits
+//!   [`TermMatchDsl`] / [`ParadeMatchDsl`] / [`PhraseMatchDsl`]
+//!   (`.term_match(...)`, `.parade_match(...)`, and `.phrase_match(...)`).
 //! - Scalar function bindings: [`pdb_all`][fn@pdb_all],
-//!   [`pdb_score`][fn@pdb_score].
+//!   [`pdb_parse`][fn@pdb_parse], [`pdb_score`][fn@pdb_score],
+//!   [`pdb_snippet`][fn@pdb_snippet], and
+//!   [`pdb_more_like_this`][fn@pdb_more_like_this].
 //! - Aggregate / window expressions: [`pdb_agg_terms`], [`pdb_agg_avg`],
 //!   [`pdb_agg_stats`], [`pdb_agg_value_count`]. Each returns a [`PdbAgg`]
 //!   that can be used directly (aggregate form) or via `.over_all()`
@@ -32,9 +39,10 @@
 //!   type system — `CREATE INDEX ... USING bm25 (...)` belongs in your
 //!   migrations. This crate type-checks queries that *use* a BM25 index;
 //!   existence of the index is a runtime contract.
-//! - The legacy `paradedb.searchqueryinput` type. ParadeDB exposes both
-//!   `pdb.query` (newer) and `paradedb.searchqueryinput` (legacy). This
-//!   crate models only the newer `pdb.query`.
+//! - Most of the legacy `paradedb.searchqueryinput` surface. ParadeDB exposes
+//!   both `pdb.query` (newer) and `paradedb.searchqueryinput` (legacy). This
+//!   crate models the legacy marker only where current ParadeDB still needs it,
+//!   such as `pdb.more_like_this(...)`.
 //!
 //! ## Quick start
 //!
@@ -62,10 +70,9 @@
 //!
 //! ## Diesel version compatibility
 //!
-//! This crate pins to a single Diesel minor. `diesel-paradedb` `0.1.x`
-//! targets `diesel = "~2.2"`. A Diesel `2.3` release will trigger
-//! `diesel-paradedb` `0.2`; a Diesel `3.0` will trigger
-//! `diesel-paradedb` `3.0` (the crate's major tracks Diesel's).
+//! This crate supports Diesel `2.2` and `2.3` (`>=2.2, <2.4`). Each new Diesel
+//! minor is validated against this crate's test suite before the upper bound is
+//! widened.
 //!
 //! ## Async usage
 //!
@@ -77,7 +84,7 @@
 //! [`diesel-async`]: https://crates.io/crates/diesel-async
 
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![doc(html_root_url = "https://docs.rs/diesel-paradedb/0.1.0")]
+#![doc(html_root_url = "https://docs.rs/diesel-paradedb/1.0.3")]
 
 mod aggregates;
 mod dsl;
@@ -87,12 +94,15 @@ mod types;
 pub use aggregates::{
     pdb_agg_avg, pdb_agg_stats, pdb_agg_terms, pdb_agg_value_count, PdbAgg, PdbAggOver,
 };
-pub use dsl::{ParadeMatch, ParadeMatchDsl, TermMatch, TermMatchDsl};
-pub use functions::{pdb_all, pdb_score};
+pub use dsl::{ParadeMatch, ParadeMatchDsl, PhraseMatch, PhraseMatchDsl, TermMatch, TermMatchDsl};
+pub use functions::{
+    pdb_all, pdb_more_like_this, pdb_more_like_this_in_fields, pdb_parse, pdb_score, pdb_snippet,
+    pdb_snippet_with_tags,
+};
 
 /// SQL-type markers exposed for use in `Queryable` derives and explicit
 /// type annotations on `select(...)` clauses. The convention mirrors
 /// pgvector's `pgvector::sql_types::Vector` re-export.
 pub mod sql_types {
-    pub use crate::types::ParadeQuery;
+    pub use crate::types::{ParadeQuery, SearchQueryInput};
 }

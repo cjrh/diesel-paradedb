@@ -7,33 +7,26 @@ on:
 
 jobs:
   test:
-    name: test
+    name: test (${{ matrix.rust }})
     runs-on: ubuntu-latest
-
-    # Live integration tests under tests/live_paradedb.rs hit a real
-    # ParadeDB instance on localhost:5432. POSTGRES_PASSWORD=parade
-    # matches the default TEST_DATABASE_URL baked into that file, so
-    # no env override is needed.
-    services:
-      paradedb:
-        image: paradedb/paradedb:latest
-        env:
-          POSTGRES_PASSWORD: parade
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 20
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: ["1.86.0", stable]
 
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
       - uses: Swatinem/rust-cache@v2
 
       - name: unit tests
         run: cargo test --lib
 
+      - name: compile examples
+        run: cargo check --examples
+
       - name: live integration tests
-        run: cargo test --test live_paradedb -- --ignored
+        if: matrix.rust == 'stable'
+        run: cargo test --test live_paradedb -- --ignored --nocapture
