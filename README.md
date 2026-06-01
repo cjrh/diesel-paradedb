@@ -1,9 +1,3 @@
-<!-- ParadeDB: Postgres for Search and Analytics -->
-<h1 align="center">
-  <a href="https://paradedb.com"><img src="https://github.com/paradedb/paradedb/raw/main/docs/logo/readme.svg" alt="ParadeDB"></a>
-<br>
-</h1>
-
 <p align="center">
   <b>Diesel ORM bindings for ParadeDB full-text search</b><br/>
 </p>
@@ -21,8 +15,6 @@
   <a href="https://docs.rs/diesel-paradedb"><img src="https://img.shields.io/docsrs/diesel-paradedb" alt="docs.rs"></a>&nbsp;
   <a href="https://github.com/cjrh/diesel-paradedb/actions/workflows/ci.yml"><img src="https://github.com/cjrh/diesel-paradedb/actions/workflows/ci.yml/badge.svg" alt="CI"></a>&nbsp;
   <a href="#license"><img src="https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg" alt="License"></a>&nbsp;
-  <a href="https://paradedb.com/slack"><img src="https://img.shields.io/badge/Join%20Slack-purple?logo=slack" alt="Community"></a>&nbsp;
-  <a href="https://x.com/paradedb"><img src="https://img.shields.io/twitter/url?url=https%3A%2F%2Ftwitter.com%2Fparadedb&label=Follow%20%40paradedb" alt="Follow @paradedb"></a>
 </p>
 
 ---
