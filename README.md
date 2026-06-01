@@ -2,14 +2,6 @@
   <b>Diesel ORM bindings for ParadeDB full-text search</b><br/>
 </p>
 
-<h3 align="center">
-  <a href="https://paradedb.com">Website</a> &bull;
-  <a href="https://docs.paradedb.com">Docs</a> &bull;
-  <a href="https://paradedb.com/slack/">Community</a> &bull;
-  <a href="https://paradedb.com/blog/">Blog</a> &bull;
-  <a href="https://docs.paradedb.com/changelog/">Changelog</a>
-</h3>
-
 <p align="center">
   <a href="https://crates.io/crates/diesel-paradedb"><img src="https://img.shields.io/crates/v/diesel-paradedb.svg" alt="crates.io"></a>&nbsp;
   <a href="https://docs.rs/diesel-paradedb"><img src="https://img.shields.io/docsrs/diesel-paradedb" alt="docs.rs"></a>&nbsp;
